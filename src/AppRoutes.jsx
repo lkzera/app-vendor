@@ -6,27 +6,30 @@ import{
 } from "react-router-dom";
 import LoginPage from  "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import {AuthContext} from "./context/auth";
-import React, {useState} from "react";
+import {AuthProvider, AuthContext} from "./context/auth";
+import React, {useState,useContext} from "react";
 
 const AppRoutes = () =>{
-    const [user,setUser] = useState(null);
-    const login = (email,password) =>{
-        console.log("login", {email,password});
-        setUser({id:'123', email })
-    };
-    const logout = () => {
-        console.log("login");
-    };
+   
+    const Private = ({children}) => {
+        const {authenticated} = useContext(AuthContext);
+
+        if(!authenticated){
+            return <Navigate to="/login"/>;
+        }
+
+        return children;
+    }
+
 
     return(
         <Router>
-            <AuthContext.Provider value={{authenticated: !!user, user, login,logout}}>
+            <AuthProvider>
             <Routes>
                 <Route exact path="/login" element={<LoginPage/>}/>
-                <Route exact path="/" element={<HomePage/>}/>
+                <Route exact path="/" element={<Private><HomePage/></Private>}/>
             </Routes>
-            </AuthContext.Provider>
+            </AuthProvider>
         </Router>
     );
 }
